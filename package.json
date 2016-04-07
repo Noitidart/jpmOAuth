@@ -1,0 +1,16 @@
+{
+  "title": "Oauth",
+  "name": "oauth",
+  "version": "0.0.1",
+  "description": "Shows how to do OAuth 2.0 sign in flow in Firefox addon. Uses Twitter as example.",
+  "main": "index.js",
+  "author": "Noitidart",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "MIT",
+  "keywords": [
+    "jetpack"
+  ]
+}
