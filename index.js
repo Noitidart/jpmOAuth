@@ -6,6 +6,7 @@ var {Cu} = require('chrome');
 Cu.import('resource://gre/modules/Services.jsm');
 
 Services.scriptloader.loadSubScript(self.data.url('hmac-sha1.js'));
+Services.scriptloader.loadSubScript(self.data.url('enc-base64-min.js'));
 // console.error('CryptoJS:', CryptoJS.HmacSHA1("rawr", "11").toString(CryptoJS.enc.Hex));
 
 // start - common functions
@@ -150,6 +151,7 @@ function twitterRequestDetails(aURL, aMethod, aConsumerKey, aOptions) {
 	
 	// create encoded sig
 	var sig_hmac_sha1_base64 = CryptoJS.HmacSHA1(sig_str, sig_key).toString(CryptoJS.enc.Base64);
+	console.error('sig_hmac_sha1_base64:', sig_hmac_sha1_base64);
 	oauth_params.oauth_signature = sig_hmac_sha1_base64;
 	
 	// create header_auth_str
@@ -170,10 +172,9 @@ var cReqDetail = twitterRequestDetails('https://api.twitter.com/oauth/request_to
 	}
 });
 console.error('cReqDetail:', cReqDetail);
-
-
 Request({
 	url: cReqDetail.url,
+	anonymous: true,
 	headers: {
 		Authorization: cReqDetail.header_auth
 	},
