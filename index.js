@@ -21,6 +21,7 @@ var jQLike = { // my stand alone jquery like functions
 
 function to_rfc3986(aStr) {
 	// https://af-design.com/2008/03/14/rfc-3986-compliant-uri-encoding-in-javascript/
+	// i should test with the samples given here - https://dev.twitter.com/oauth/overview/percent-encoding-parameters
 	var tmp =  encodeURIComponent(aStr);
 	tmp = tmp.replace('!','%21');
 	tmp = tmp.replace('*','%2A');
@@ -40,7 +41,7 @@ function nonce(length) {
     return text;
 }
 
-function twitterRequestDetails(aURL, aMethod, aRawPostDataObj={}, aCallback, aConsumerKey, aOauthTokenSecret=null) {
+function twitterRequestDetails(aURL, aMethod, aRawPostDataObj={}, aConsumerKey, aOauthTokenSecret=null) {
 	// generates a twitter signature
 	// rawPostDataObj is the post data non url encoded/escpaed
 	
@@ -113,24 +114,8 @@ function twitterRequestDetails(aURL, aMethod, aRawPostDataObj={}, aCallback, aCo
 		header_auth_str.push(to_rfc3986(header_auth[i][0]) + '="' + to_rfc3986(header_auth[i][1]) + '"');
 	}
 	header_auth_str = header_auth_str.join(', ');
+	// console.error('header_auth_str:', header_auth_str);
 	
-		// 'OAuth oauth_consumer_key="AjONvgAdbD8YWCtRn5U9yA"',
-		// 'oauth_nonce="' + nonce(42) + '"',
-		// 'oauth_signature="tnnArxj06cWHq44gCs1OSKk%2FjLY%3D"',
-		// 'oauth_signature_method="HMAC-SHA1"',
-		// 'oauth_timestamp="' + (new Date()).getTime() + '"',
-		// 'oauth_token="370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb"',
-		// 'oauth_version="1.0"'
-		
-		// 'OAuth oauth_nonce="' + nonce(42) + '"',
-		// 'oauth_callback="' + encodeURIComponent('http://127.0.0.1/floppers') + '"',
-		// 'oauth_signature_method="HMAC-SHA1"',
-		// 'oauth_timestamp="' + (new Date()).getTime() + '"',
-		// 'oauth_consumer_key="AjONvgAdbD8YWCtRn5U9yA"',
-		// 'oauth_signature="Pc%2BMLdv028fxCErFyi8KXFM%2BddU%3D"',
-		// 'oauth_version="1.0"'
-	
-	console.error('header_auth_str:', header_auth_str);
 	return {
 		url: aURL,
 		header_auth: 'OAuth ' + header_auth_str,
@@ -140,7 +125,7 @@ function twitterRequestDetails(aURL, aMethod, aRawPostDataObj={}, aCallback, aCo
 
 var cReqDetail = twitterRequestDetails('https://api.twitter.com/oauth/request_token', 'POST', {
   oauth_callback: 'http://127.0.0.1/floppers'
-}, 'http://127.0.0.1/floppers', 'AjONvgAdbD8YWCtRn5U9yA', null);
+}, 'AjONvgAdbD8YWCtRn5U9yA', null);
 console.error('cReqDetail:', cReqDetail);
 
 var req = {
