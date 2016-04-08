@@ -189,9 +189,20 @@ Request({
 	onComplete: function (response) {
 		console.error(response.text, response.json);
 		
-		// tabs.open('https://api.twitter.com/oauth2/token?' + jQLike.serialize({
-			// oauth_token: response.json.oauth_token,
-		// });
+		var responseAsJson = response.text;
+		responseAsJson = responseAsJson.replace(/&/g, '","');
+		responseAsJson = responseAsJson.replace(/=/g, '":"');
+		responseAsJson = '{"' + responseAsJson + '"}';
+		responseAsJson = responseAsJson.replace(/"(true|false)"/, function($0, $1) { return $1; });
+		console.error('responseAsJson:', responseAsJson);
+		responseAsJson = JSON.parse(responseAsJson);
+		console.error('responseAsJson:', responseAsJson);
+		// oauth_token=7RShVAAAAAAAuiALAAABU_N3j1s&oauth_token_secret=uAa3wNcebiaUXWE5skHJ7iW4xuuuTBGP&oauth_callback_confirmed=true
+		// responseAsJson={"oauth_token":"7RShVAAAAAAAuiALAAABU_N3j1s","oauth_token_secret":"uAa3wNcebiaUXWE5skHJ7iW4xuuuTBGP","oauth_callback_confirmed":true}
+		
+		tabs.open('https://api.twitter.com/oauth/authorize?' + jQLike.serialize({
+			oauth_token: responseAsJson.oauth_token
+		}));
 	}
 })[cReqDetail.method.toLowerCase()]();
 
