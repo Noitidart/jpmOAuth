@@ -1,6 +1,7 @@
 var self = require("sdk/self");
 var tabs = require("sdk/tabs");
 var Request = require("sdk/request").Request;
+var pageMod = require("sdk/page-mod");
 var {Cu} = require('chrome');
 
 Cu.import('resource://gre/modules/Services.jsm');
@@ -109,6 +110,15 @@ function nonce(length) {
     }
     return text;
 }
+function queryStringAsJson(aQueryString) {
+	var asJsonStringify = aQueryString;
+	asJsonStringify = asJsonStringify.replace(/&/g, '","');
+	asJsonStringify = asJsonStringify.replace(/=/g, '":"');
+	asJsonStringify = '{"' + asJsonStringify + '"}';
+	asJsonStringify = asJsonStringify.replace(/"(\d+|true|false)"/, function($0, $1) { return $1; });
+	
+	return JSON.parse(asJsonStringify);
+}
 // end - common functions
 
 function twitterRequestDetails(aURL, aMethod, aConsumerKey, aConsumerSecret, aOptions) {
@@ -174,6 +184,19 @@ function twitterRequestDetails(aURL, aMethod, aConsumerKey, aConsumerSecret, aOp
 	};
 }
 
+pageMod.PageMod({
+	include: gOauth.twitter.callback + '*',
+	contentScript: 'self.port.emit("authorized_oauth_querystring", window.location.href.substr(window.location.href.indexOf("?") + 1))',
+	contentScriptWhen: 'ready',
+	onAttach: function(worker) {
+		worker.port.on('authorized_oauth_querystring', function(aQueryString) {
+			gOauth.twitter.session = queryStringAsJson(aQueryString);
+			console.error('gOauth.twitter.session:', gOauth.twitter.session);
+			Services.prompt.alert(null, 'Authorized', 'Can now use these details for Tiwtter API requests:\n' + JSON.stringify(gOauth.twitter.session));
+		});
+	}
+});
+
 var cReqDetail = twitterRequestDetails('https://api.twitter.com/oauth/request_token', 'POST', gOauth.twitter.key, gOauth.twitter.secret, {
 	extraOauthParams: {
 		oauth_callback: gOauth.twitter.callback
@@ -189,13 +212,7 @@ Request({
 	onComplete: function (response) {
 		console.error(response.text, response.json);
 		
-		var responseAsJson = response.text;
-		responseAsJson = responseAsJson.replace(/&/g, '","');
-		responseAsJson = responseAsJson.replace(/=/g, '":"');
-		responseAsJson = '{"' + responseAsJson + '"}';
-		responseAsJson = responseAsJson.replace(/"(true|false)"/, function($0, $1) { return $1; });
-		console.error('responseAsJson:', responseAsJson);
-		responseAsJson = JSON.parse(responseAsJson);
+		var responseAsJson = queryStringAsJson(response.text);
 		console.error('responseAsJson:', responseAsJson);
 		// oauth_token=7RShVAAAAAAAuiALAAABU_N3j1s&oauth_token_secret=uAa3wNcebiaUXWE5skHJ7iW4xuuuTBGP&oauth_callback_confirmed=true
 		// responseAsJson={"oauth_token":"7RShVAAAAAAAuiALAAABU_N3j1s","oauth_token_secret":"uAa3wNcebiaUXWE5skHJ7iW4xuuuTBGP","oauth_callback_confirmed":true}
@@ -207,3 +224,5 @@ Request({
 })[cReqDetail.method.toLowerCase()]();
 
 console.error('ok did req');
+
+
