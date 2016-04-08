@@ -12,6 +12,7 @@ Services.scriptloader.loadSubScript(self.data.url('enc-base64-min.js'));
 var gOauth = {
 	twitter: {
 		key: 'MTLUUfj74wbilm6LUqdkp3jq6',
+		secret: 'tehEPKqELLWQ2PWQ7kOMK3iRNprJouplJyqWUTxEBNe1bV42AW',
 		callback: 'http://127.0.0.1/jpmoauth'
 	}
 }
@@ -110,7 +111,7 @@ function nonce(length) {
 }
 // end - common functions
 
-function twitterRequestDetails(aURL, aMethod, aConsumerKey, aOptions) {
+function twitterRequestDetails(aURL, aMethod, aConsumerKey, aConsumerSecret, aOptions) {
 	// generates a twitter signature
 	// rawPostDataObj is the post data non url encoded/escpaed
 	
@@ -153,7 +154,7 @@ function twitterRequestDetails(aURL, aMethod, aConsumerKey, aOptions) {
 	console.error('sig_str:', sig_str);
 	
 	// create signing key
-	var sig_key = to_rfc3986(aConsumerKey) + '&' + (aOptions.oauthTokenSecret ? to_rfc3986(aOptions.oauthTokenSecret) : '');
+	var sig_key = to_rfc3986(aConsumerSecret) + '&' + (aOptions.oauthTokenSecret ? to_rfc3986(aOptions.oauthTokenSecret) : '');
 	console.error('sig_key:', sig_key);
 	
 	// create encoded sig
@@ -173,7 +174,7 @@ function twitterRequestDetails(aURL, aMethod, aConsumerKey, aOptions) {
 	};
 }
 
-var cReqDetail = twitterRequestDetails('https://api.twitter.com/oauth/request_token', 'POST', gOauth.twitter.key, {
+var cReqDetail = twitterRequestDetails('https://api.twitter.com/oauth/request_token', 'POST', gOauth.twitter.key, gOauth.twitter.secret, {
 	extraOauthParams: {
 		oauth_callback: gOauth.twitter.callback
 	}
