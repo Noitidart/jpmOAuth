@@ -9,6 +9,13 @@ Services.scriptloader.loadSubScript(self.data.url('hmac-sha1.js'));
 Services.scriptloader.loadSubScript(self.data.url('enc-base64-min.js'));
 // console.error('CryptoJS:', CryptoJS.HmacSHA1("rawr", "11").toString(CryptoJS.enc.Hex));
 
+var gOauth = {
+	twitter: {
+		key: 'MTLUUfj74wbilm6LUqdkp3jq6',
+		callback: 'http://127.0.0.1/jpmoauth'
+	}
+}
+
 // start - common functions
 // rev1 - https://gist.github.com/Noitidart/6c172e77fe48f78521f2
 var jQLike = { // my stand alone jquery like functions
@@ -166,9 +173,9 @@ function twitterRequestDetails(aURL, aMethod, aConsumerKey, aOptions) {
 	};
 }
 
-var cReqDetail = twitterRequestDetails('https://api.twitter.com/oauth/request_token', 'POST', 'AjONvgAdbD8YWCtRn5U9yA', {
+var cReqDetail = twitterRequestDetails('https://api.twitter.com/oauth/request_token', 'POST', gOauth.twitter.key, {
 	extraOauthParams: {
-		oauth_callback: 'http://127.0.0.1/floppers'
+		oauth_callback: gOauth.twitter.callback
 	}
 });
 console.error('cReqDetail:', cReqDetail);
